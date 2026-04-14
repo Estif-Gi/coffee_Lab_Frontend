@@ -3,7 +3,6 @@ import os from 'node:os'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { VitePWA } from 'vite-plugin-pwa'
 
 // Avoid EPERM on Windows when the repo lives under OneDrive: Vite can't reliably
 // remove node_modules/.vite/deps while the folder is synced/locked.
@@ -15,24 +14,5 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-      strategies: 'injectManifest',
-      srcDir: 'src',
-      filename: 'sw.js',
-      registerType: 'autoUpdate',
-      manifest: false,
-      includeAssets: [
-        'favicon.svg',
-        'icons.svg',
-        'coffee lab (1).webp',
-        'manifest.json',
-      ],
-      injectManifest: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
-      },
-      devOptions: {
-        enabled: false,
-      },
-    }),
   ],
 })
