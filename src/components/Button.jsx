@@ -2,7 +2,7 @@ function Button({ children, variant = 'primary', className = '', ...props }) {
   const styles =
     variant === 'secondary'
       ? 'bg-transparent border border-cream text-cream hover:bg-cream hover:text-coffee-900'
-      : 'bg-gold text-coffee-900 border border-gold hover:brightness-110'
+      : 'bg-gold text-coffee-900 border border-gold hover:brightness-110 hover:border-gold/80'
 
   return (
     <button
