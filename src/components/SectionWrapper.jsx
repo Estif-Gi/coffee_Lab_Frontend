@@ -11,7 +11,7 @@ function SectionWrapper({ id, title, subtitle, children }) {
       className="mx-auto w-full max-w-6xl px-4 py-16 md:px-8 text-coffee-900 dark:text-cream"
     >
       {(title || subtitle) && (
-        <div className="mb-10 text-center dark:bg-coffee-900">
+        <div className="mb-10  py-4 text-center ">
           {subtitle && (
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               {subtitle}
