@@ -10,6 +10,9 @@ const cacheDir = path.join(os.tmpdir(), 'vite-cache-coffee-lab')
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Ensure SPA route fallback is used (e.g. /menu -> index.html).
+  appType: 'spa',
+  base: '/',
   cacheDir,
   plugins: [
     react(),
