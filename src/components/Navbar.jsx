@@ -11,6 +11,8 @@ function Navbar() {
   const navigate = useNavigate()
   const { authToken, user, logout } = useCoffeeStore()
   const isAdmin = user?.role === 'admin' || localStorage.getItem('coffeeLabUserRole') === 'admin'
+  const role = user?.role || sessionStorage.getItem('coffeeLabUserRole') || localStorage.getItem('coffeeLabUserRole')
+  const isOwner = role === 'owner' || role === 'owuner'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -43,7 +45,9 @@ function Navbar() {
   const menuItems = [
     { to: '/', label: 'Home' },
     { to: '/menu', label: 'Menu' },
+    ...(isOwner || isAdmin ? [{ to: '/owner/orders', label: 'New Order' }] : []),
     ...(isAdmin ? [{ to: '/admin', label: 'Admin' }] : []),
+    ...(isAdmin ? [{ to: '/admin/orders', label: 'Kitchen' }] : []),
   ]
 
   return (

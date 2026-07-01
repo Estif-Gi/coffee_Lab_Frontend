@@ -1,5 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffee-lab-backend-est.vercel.app'
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_LOCAL 
 function formatPrice(item) {
   if (typeof item.price === 'number') return `$${(item.price / 100).toFixed(2)}`
   if (typeof item.price === 'string' && item.price.trim()) {
@@ -34,11 +33,16 @@ function normalizeMenuItems(data) {
 
   return items.map((item) => ({
     id: item.id || item._id || item.name,
-    category: item.category || 'Coffee',
+    category: item.category || 'Hot Drinks',
     name: item.name || 'Unnamed Item',
     description: item.description || item.desc || '',
     price: formatPrice(item),
+    priceCents: Number(item.priceCents ?? item.price ?? 0),
     featured: item.featured ?? false,
+    imageUrl: item.imageUrl || item.image || '',
+    publicId: item.publicId || '',
+    available: item.available ?? true,
+    sortOrder: item.sortOrder ?? 0,
   }))
 }
 
@@ -77,7 +81,14 @@ async function requestApi(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, options)
   if (!response.ok) {
     const errorPayload = await response.text().catch(() => '')
-    throw new Error(`API request failed: ${response.status} ${response.statusText} ${errorPayload}`)
+    let message = `API request failed: ${response.status} ${response.statusText}`
+    try {
+      const parsed = JSON.parse(errorPayload)
+      message = parsed.message || parsed.error || message
+    } catch {
+      if (errorPayload) message = `${message} ${errorPayload}`
+    }
+    throw new Error(message)
   }
   return response.json()
 }
@@ -217,6 +228,59 @@ export async function updatePromotion(token, promoId, promo) {
 
 export async function deletePromotion(token, promoId) {
   return requestApi(`/api/promotions/${promoId}`, makeRequestOptions(token, 'DELETE'))
+}
+
+function normalizeOrders(data) {
+  const rawItems = Array.isArray(data)
+    ? data
+    : data?.data || data?.items || data?.orders || []
+
+  return rawItems.map((item) => {
+    const orderItems = Array.isArray(item.items) && item.items.length > 0
+      ? item.items
+      : [item]
+
+    return {
+      id: item.id || item._id,
+      menuItemId: item.menuItemId,
+      category: item.category || 'Hot Drinks',
+      name: item.name || 'Unnamed Item',
+      description: item.description || '',
+      price: formatPrice(item),
+      priceCents: Number(item.priceCents ?? 0),
+      identifr: item.identifr || '',
+      isServed: item.isServed ?? false,
+      createdAt: item.createdAt || '',
+      items: orderItems.map((orderItem) => ({
+        id: orderItem.menuItemId || orderItem.id || orderItem._id || orderItem.name,
+        menuItemId: orderItem.menuItemId,
+        category: orderItem.category || 'Hot Drinks',
+        name: orderItem.name || 'Unnamed Item',
+        description: orderItem.description || '',
+        price: formatPrice(orderItem),
+        priceCents: Number(orderItem.priceCents ?? 0),
+        quantity: Number(orderItem.quantity || 1),
+      })),
+    }
+  })
+}
+
+export async function createOrder(token, order) {
+  return requestApi('/api/orders', makeRequestOptions(token, 'POST', order))
+}
+
+export async function fetchActiveOrders(token) {
+  const data = await requestApi('/api/orders/active', makeRequestOptions(token))
+  return normalizeOrders(data)
+}
+
+export async function fetchServedOrders(token) {
+  const data = await requestApi('/api/orders/served', makeRequestOptions(token))
+  return normalizeOrders(data)
+}
+
+export async function updateOrderServed(token, orderId, isServed) {
+  return requestApi(`/api/orders/${orderId}`, makeRequestOptions(token, 'PATCH', { isServed }))
 }
 
 export async function signupUser(payload) {
