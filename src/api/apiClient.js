@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL_LOCAL 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 function formatPrice(item) {
   if (typeof item.price === 'number') return `$${(item.price / 100).toFixed(2)}`
   if (typeof item.price === 'string' && item.price.trim()) {
